@@ -45,14 +45,18 @@ def only_primes(stream):
 def streaming_statistics(stream):
     total = 0
     n = 0
-    items = []
-    std = None
-    mean = None
+    std = 0
+    mean = 0
     for item in stream:
-        items.append(item)
+        old_mean = mean
+        old_std = std
         total += item
         n += 1
+        mean = total / n
+
+        if n == 0:
+            yield {'mean': None, 'std': None}
+
         if n > 1:
-            mean = total / n
-            std = (sum((stream_item - mean) ** 2 for stream_item in items) / (n - 1)) ** 0.5
+            std = (((n - 2) * old_std ** 2 + (item - mean) * (item - old_mean))/(n - 1)) ** 0.5
         yield {'mean': mean, 'std': std}
